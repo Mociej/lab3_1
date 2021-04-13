@@ -42,12 +42,10 @@ class BookKeeperTest {
 
     private BookKeeper bookKeeper;
 
-    private ProductDataBuilder productDataBuilder;
 
     @BeforeEach
     void setUp() throws Exception {
         bookKeeper = new BookKeeper(invoiceFactory);
-        productDataBuilder = new ProductDataBuilder();
     }
 
     @Test
@@ -55,7 +53,12 @@ class BookKeeperTest {
         //Given
         InvoiceRequest invoiceRequest = new InvoiceRequest(CLIENT_DATA);
 
-        ProductData productData = productDataBuilder.init(ID_ONE, MONEY_ZERO, SAMPLE_PRODUCTDATA_NAME, ProductType.STANDARD, new Date());
+        ProductData productData = new ProductDataBuilder()
+                .withId(ID_ONE).withMoney(MONEY_ZERO)
+                .withName(SAMPLE_PRODUCTDATA_NAME)
+                .withType(ProductType.STANDARD)
+                .withDate(new Date())
+                .build();
 
         RequestItem requestItem = new RequestItem(productData, QUANTITY_ONE, MONEY_ZERO);
         invoiceRequest.add(requestItem);
@@ -76,7 +79,13 @@ class BookKeeperTest {
         //Given
         InvoiceRequest invoiceRequest = new InvoiceRequest(CLIENT_DATA);
 
-        ProductData productData = productDataBuilder.init(ID_ONE, MONEY_ZERO, SAMPLE_PRODUCTDATA_NAME, ProductType.STANDARD, new Date());
+        //ProductData productData = productDataBuilder.init(ID_ONE, MONEY_ZERO, SAMPLE_PRODUCTDATA_NAME, ProductType.STANDARD, new Date()).build();
+        ProductData productData = new ProductDataBuilder()
+                .withId(ID_ONE).withMoney(MONEY_ZERO)
+                .withName(SAMPLE_PRODUCTDATA_NAME)
+                .withType(ProductType.STANDARD)
+                .withDate(new Date())
+                .build();
 
         RequestItem requestItem = new RequestItem(productData, QUANTITY_ONE, MONEY_ZERO);
         invoiceRequest.add(requestItem);
@@ -112,11 +121,27 @@ class BookKeeperTest {
         //Given
         InvoiceRequest invoiceRequest = new InvoiceRequest(CLIENT_DATA);
 
-        ProductData productData = productDataBuilder.init(ID_ONE, MONEY_ZERO, SAMPLE_PRODUCTDATA_NAME, ProductType.STANDARD, new Date());
+        ProductData productData = new ProductDataBuilder()
+                .withId(ID_ONE)
+                .withMoney(MONEY_ZERO)
+                .withName(SAMPLE_PRODUCTDATA_NAME)
+                .withType(ProductType.STANDARD)
+                .withDate(new Date())
+                .build();
 
         RequestItem requestItem = new RequestItem(productData, QUANTITY_ONE, MONEY_ZERO);
         invoiceRequest.add(requestItem);
-        invoiceRequest.add(requestItem);
+
+        ProductData productData2 = new ProductDataBuilder()
+                .withId(ID_TWO)
+                .withMoney(MONEY_ZERO)
+                .withName(SAMPLE_PRODUCTDATA_NAME)
+                .withType(ProductType.STANDARD)
+                .withDate(new Date())
+                .build();
+
+        RequestItem requestItem2 = new RequestItem(productData2, 3, MONEY_SOME);
+        invoiceRequest.add(requestItem2);
 
         when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(TAX_ZERO);
         when(invoiceFactory.create(CLIENT_DATA)).thenReturn(new Invoice(ID_ONE, CLIENT_DATA));
@@ -148,16 +173,35 @@ class BookKeeperTest {
         //Given
         InvoiceRequest invoiceRequest = new InvoiceRequest(CLIENT_DATA);
 
-        ProductData productData = productDataBuilder.init(ID_ONE, MONEY_ZERO, SAMPLE_PRODUCTDATA_NAME, ProductType.STANDARD, new Date());
+        ProductData productData = new ProductDataBuilder()
+                .withId(ID_ONE)
+                .withMoney(MONEY_ZERO)
+                .withName(SAMPLE_PRODUCTDATA_NAME)
+                .withType(ProductType.STANDARD)
+                .withDate(new Date())
+                .build();
 
         RequestItem requestItem = new RequestItem(productData, QUANTITY_ONE, MONEY_ZERO);
         invoiceRequest.add(requestItem);
-        ProductData productData2 = productDataBuilder.init(ID_TWO, MONEY_SOME, "name2", ProductType.STANDARD, new Date());
+
+        ProductData productData2 = new ProductDataBuilder()
+                .withId(ID_TWO)
+                .withMoney(MONEY_ZERO)
+                .withName(SAMPLE_PRODUCTDATA_NAME)
+                .withType(ProductType.STANDARD)
+                .withDate(new Date())
+                .build();
 
         RequestItem requestItem2 = new RequestItem(productData2, 3, MONEY_SOME);
         invoiceRequest.add(requestItem2);
-        ProductData productData3 = productDataBuilder.init(ID_THREE, MONEY_ZERO, "name3", ProductType.STANDARD, new Date());
 
+        ProductData productData3 = new ProductDataBuilder()
+                .withId(ID_THREE)
+                .withMoney(MONEY_ZERO)
+                .withName(SAMPLE_PRODUCTDATA_NAME)
+                .withType(ProductType.STANDARD)
+                .withDate(new Date())
+                .build();
         RequestItem requestItem3 = new RequestItem(productData3, 2, MONEY_ZERO);
         invoiceRequest.add(requestItem3);
 
