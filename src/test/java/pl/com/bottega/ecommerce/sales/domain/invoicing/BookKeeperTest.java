@@ -24,7 +24,6 @@ class BookKeeperTest {
     private static final String SAMPLE_TAX_NAME = "tax1";
     private static final String SAMPLE_PRODUCTDATA_NAME = "test1";
     private static final Id ID_ONE = new Id("1");
-    private static final Id ID_TWO = new Id("2");
     private static final ClientData CLIENT_DATA = new ClientData(ID_ONE, SAMPLE_CLIENT_NAME);
     private static final Tax TAX_ZERO = new Tax(new Money(0), SAMPLE_TAX_NAME);
     private static final Money MONEY_ZERO = new Money(0);
@@ -127,10 +126,17 @@ class BookKeeperTest {
     }
 
     @Test
-    void TestBehaviour1() {
+    void NoInvokeInvoiceWithZeroItemsNoCallCalculateTax() {
         //Given
+        InvoiceRequest invoiceRequest = new InvoiceRequest(CLIENT_DATA);
+        when(invoiceFactory.create(CLIENT_DATA)).thenReturn(new Invoice(ID_ONE, CLIENT_DATA));
+
         //When
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
         //Then
+        assertEquals(RESULT_COUNT_ZERO, invoice.getItems().size());
+        verifyNoInteractions(taxPolicy);
     }
 
     @Test
