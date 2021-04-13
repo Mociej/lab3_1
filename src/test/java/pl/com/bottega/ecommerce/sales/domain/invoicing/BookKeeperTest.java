@@ -29,6 +29,7 @@ class BookKeeperTest {
     private static final Tax TAX_ZERO = new Tax(new Money(0), SAMPLE_TAX_NAME);
     private static final Money MONEY_ZERO = new Money(0);
     private static final int QUANTITY_ONE = 1;
+    private static final int RESULT_COUNT_ZERO = 0;
     private static final int RESULT_COUNT_ONE = 1;
     private static final int RESULT_COUNT_TWO = 2;
     @Mock
@@ -90,10 +91,17 @@ class BookKeeperTest {
     }
 
     @Test
-    void TestState1() {
+    void InvokeInvoiceWhenZeroItems() {
         //Given
+        InvoiceRequest invoiceRequest = new InvoiceRequest(CLIENT_DATA);
+        when(invoiceFactory.create(CLIENT_DATA)).thenReturn(new Invoice(ID_ONE, CLIENT_DATA));
+
         //When
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
         //Then
+        assertNotEquals(null, invoice);
+        assertEquals(RESULT_COUNT_ZERO, invoice.getItems().size());
     }
 
     @Test
