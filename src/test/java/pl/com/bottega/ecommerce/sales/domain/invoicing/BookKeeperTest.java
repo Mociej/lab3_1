@@ -24,13 +24,17 @@ class BookKeeperTest {
     private static final String SAMPLE_TAX_NAME = "tax1";
     private static final String SAMPLE_PRODUCTDATA_NAME = "test1";
     private static final Id ID_ONE = new Id("1");
+    private static final Id ID_TWO = new Id("2");
+    private static final Id ID_THREE = new Id("3");
     private static final ClientData CLIENT_DATA = new ClientData(ID_ONE, SAMPLE_CLIENT_NAME);
     private static final Tax TAX_ZERO = new Tax(new Money(0), SAMPLE_TAX_NAME);
     private static final Money MONEY_ZERO = new Money(0);
+    private static final Money MONEY_SOME = new Money(110);
     private static final int QUANTITY_ONE = 1;
     private static final int RESULT_COUNT_ZERO = 0;
     private static final int RESULT_COUNT_ONE = 1;
     private static final int RESULT_COUNT_TWO = 2;
+    private static final int RESULT_COUNT_THREE = 3;
     @Mock
     private InvoiceFactory invoiceFactory;
     @Mock
@@ -140,9 +144,32 @@ class BookKeeperTest {
     }
 
     @Test
-    void TestBehaviour2() {
+    void InvokeInvoiceWithThreeItemsCallCalculateTaxThreeTimes() {
         //Given
+        InvoiceRequest invoiceRequest = new InvoiceRequest(CLIENT_DATA);
+
+        ProductData productData = productDataBuilder.init(ID_ONE, MONEY_ZERO, SAMPLE_PRODUCTDATA_NAME, ProductType.STANDARD, new Date());
+
+        RequestItem requestItem = new RequestItem(productData, QUANTITY_ONE, MONEY_ZERO);
+        invoiceRequest.add(requestItem);
+        ProductData productData2 = productDataBuilder.init(ID_TWO, MONEY_SOME, "name2", ProductType.STANDARD, new Date());
+
+        RequestItem requestItem2 = new RequestItem(productData2, 3, MONEY_SOME);
+        invoiceRequest.add(requestItem2);
+        ProductData productData3 = productDataBuilder.init(ID_THREE, MONEY_ZERO, "name3", ProductType.STANDARD, new Date());
+
+        RequestItem requestItem3 = new RequestItem(productData3, 2, MONEY_ZERO);
+        invoiceRequest.add(requestItem3);
+
+
+        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(TAX_ZERO);
+        when(invoiceFactory.create(CLIENT_DATA)).thenReturn(new Invoice(ID_ONE, CLIENT_DATA));
+
         //When
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
         //Then
+        assertEquals(RESULT_COUNT_THREE, invoice.getItems().size());
+        verify(taxPolicy, times(3)).calculateTax(any(ProductType.class), any(Money.class));
     }
 }
