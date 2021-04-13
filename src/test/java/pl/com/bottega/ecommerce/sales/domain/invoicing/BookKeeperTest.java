@@ -105,10 +105,25 @@ class BookKeeperTest {
     }
 
     @Test
-    void TestState2() {
+    void InvokeInvoiceWithTwoItemReturnInvoiceWithTwoItems() {
         //Given
+        InvoiceRequest invoiceRequest = new InvoiceRequest(CLIENT_DATA);
+
+        ProductData productData = productDataBuilder.init(ID_ONE, MONEY_ZERO, SAMPLE_PRODUCTDATA_NAME, ProductType.STANDARD, new Date());
+
+        RequestItem requestItem = new RequestItem(productData, QUANTITY_ONE, MONEY_ZERO);
+        invoiceRequest.add(requestItem);
+        invoiceRequest.add(requestItem);
+
+        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(TAX_ZERO);
+        when(invoiceFactory.create(CLIENT_DATA)).thenReturn(new Invoice(ID_ONE, CLIENT_DATA));
+
         //When
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
         //Then
+        assertNotEquals(null, invoice);
+        assertEquals(RESULT_COUNT_TWO, invoice.getItems().size());
     }
 
     @Test
