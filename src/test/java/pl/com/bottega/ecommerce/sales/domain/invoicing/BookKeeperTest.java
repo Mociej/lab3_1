@@ -1,8 +1,7 @@
 package pl.com.bottega.ecommerce.sales.domain.invoicing;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,12 +24,13 @@ class BookKeeperTest {
     private static final String SAMPLE_TAX_NAME = "tax1";
     private static final String SAMPLE_PRODUCTDATA_NAME = "test1";
     private static final Id ID_ONE = new Id("1");
+    private static final Id ID_TWO = new Id("2");
     private static final ClientData CLIENT_DATA = new ClientData(ID_ONE, SAMPLE_CLIENT_NAME);
     private static final Tax TAX_ZERO = new Tax(new Money(0), SAMPLE_TAX_NAME);
     private static final Money MONEY_ZERO = new Money(0);
     private static final int QUANTITY_ONE = 1;
     private static final int RESULT_COUNT_ONE = 1;
-
+    private static final int RESULT_COUNT_TWO = 2;
     @Mock
     private InvoiceFactory invoiceFactory;
     @Mock
@@ -68,10 +68,25 @@ class BookKeeperTest {
     }
 
     @Test
-    void TestCase2() {
+    void InvokeInvoiceWithTwoItemsCallCalculateTaxTwoTimes() {
         //Given
+        InvoiceRequest invoiceRequest = new InvoiceRequest(CLIENT_DATA);
+
+        ProductData productData = productDataBuilder.init(ID_ONE, MONEY_ZERO, SAMPLE_PRODUCTDATA_NAME, ProductType.STANDARD, new Date());
+
+        RequestItem requestItem = new RequestItem(productData, QUANTITY_ONE, MONEY_ZERO);
+        invoiceRequest.add(requestItem);
+        invoiceRequest.add(requestItem);
+
+        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(TAX_ZERO);
+        when(invoiceFactory.create(CLIENT_DATA)).thenReturn(new Invoice(ID_ONE, CLIENT_DATA));
+
         //When
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
         //Then
+        assertEquals(RESULT_COUNT_TWO, invoice.getItems().size());
+        verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
     }
 
     @Test
